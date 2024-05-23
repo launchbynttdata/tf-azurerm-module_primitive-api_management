@@ -115,7 +115,7 @@ If `make check` target is successful, developer is good to commit the code to pr
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 3.99.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 3.104.2 |
 
 ## Modules
 
