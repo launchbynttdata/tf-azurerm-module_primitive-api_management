@@ -10,13 +10,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-terraform {
-  required_version = ">= 1.5.0, <= 1.5.5"
-
-  required_providers {
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.6"
-    }
+locals {
+  default_tags = {
+    provisioner = "Terraform"
   }
+
+  tags = merge(local.default_tags, var.tags)
 }

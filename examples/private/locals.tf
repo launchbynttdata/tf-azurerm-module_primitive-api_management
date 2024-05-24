@@ -10,4 +10,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+locals {
 
+  vnet_id = module.vnet.vnet_id
+
+  apim_vnet_link = {
+    private-apim-vnet-link = local.vnet_id
+  }
+
+  all_vnet_links = merge(local.apim_vnet_link, var.additional_vnet_links)
+
+  default_tags = {
+    provisioner = "Terraform"
+  }
+
+  tags = merge(local.default_tags, var.tags)
+}

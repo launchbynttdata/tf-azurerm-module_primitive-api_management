@@ -10,25 +10,114 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-variable "name" {
-  description = "Name of the API Management Service"
+variable "product_family" {
+  description = <<EOF
+    (Required) Name of the product family for which the resource is created.
+    Example: org_name, department_name.
+  EOF
   type        = string
+  default     = "dso"
+}
+
+variable "product_service" {
+  description = <<EOF
+    (Required) Name of the product service for which the resource is created.
+    For example, backend, frontend, middleware etc.
+  EOF
+  type        = string
+  default     = "kube"
+}
+
+variable "environment" {
+  description = "Environment in which the resource should be provisioned like dev, qa, prod etc."
+  type        = string
+  default     = "dev"
+}
+
+variable "environment_number" {
+  description = "The environment count for the respective environment. Defaults to 000. Increments in value of 1"
+  type        = string
+  default     = "000"
+}
+
+variable "region" {
+  description = "AWS Region in which the infra needs to be provisioned"
+  type        = string
+  default     = "eastus"
+}
+
+variable "resource_names_map" {
+  description = "A map of key to resource_name that will be used by tf-launch-module_library-resource_name to generate resource names"
+  type = map(object(
+    {
+      name       = string
+      max_length = optional(number, 60)
+    }
+  ))
+  default = {
+    apim = {
+      name       = "apim"
+      max_length = 60
+    }
+    public_ip = {
+      name       = "pip"
+      max_length = 60
+    }
+    resource_group = {
+      name       = "rg"
+      max_length = 60
+    }
+    nsg = {
+      name       = "nsg"
+      max_length = 60
+    }
+    key_vault = {
+      name       = "kv"
+      max_length = 24
+    }
+    vnet = {
+      name       = "vnet"
+      max_length = 60
+    }
+    route_table = {
+      name       = "rt"
+      max_length = 60
+    }
+  }
+}
+
+# VNet related variables
+variable "address_space" {
+  description = "Address space of the Vnet"
+  type        = list(string)
+  default     = ["10.51.0.0/16"]
+}
+
+variable "subnet_names" {
+  description = "Name of the subnets to be created"
+  type        = list(string)
+  default     = ["subnet-apim"]
+}
+
+variable "subnet_prefixes" {
+  description = "The CIDR blocks of the subnets whose names are specified in `subnet_names`"
+  type        = list(string)
+  default     = ["10.51.0.0/24"]
 }
 
 variable "resource_group_name" {
   description = "Name of the resource group"
   type        = string
-}
-
-variable "location" {
-  description = "Azure location for Eventhub."
-  type        = string
+  default     = null
 }
 
 variable "sku_name" {
   type        = string
-  description = "String consisting of two parts separated by an underscore. The fist part is the name, valid values include: Developer, Basic, Standard and Premium. The second part is the capacity"
-  default     = "Basic_1"
+  description = <<EOT
+    String consisting of two parts separated by an underscore. The fist part is the name, valid values include: Developer,
+    Basic, Standard and Premium. The second part is the capacity. Default is Developer_1.
+  EOT
+  default     = "Developer_1"
 }
 
 variable "publisher_name" {
@@ -139,12 +228,6 @@ variable "public_network_access_enabled" {
   default     = true
 }
 
-variable "public_ip_address_id" {
-  description = "The ID of the public IP address to use for the API Management Service"
-  type        = string
-  default     = null
-}
-
 variable "enable_sign_in" {
   type        = bool
   description = "Should anonymous users be redirected to the sign in page?"
@@ -182,12 +265,6 @@ variable "virtual_network_type" {
   default     = "None"
 }
 
-variable "virtual_network_configuration" {
-  type        = list(string)
-  description = "The id(s) of the subnet(s) that will be used for the API Management. Required when virtual_network_type is External or Internal"
-  default     = []
-}
-
 ### IDENTITY
 
 variable "identity_type" {
@@ -200,6 +277,27 @@ variable "identity_ids" {
   description = "A list of IDs for User Assigned Managed Identity resources to be assigned. This is required when type is set to UserAssigned or SystemAssigned, UserAssigned."
   type        = list(string)
   default     = []
+}
+
+variable "dns_zone_suffix" {
+  description = <<EOT
+    The DNS Zone suffix for APIM private DNS Zone. Default is `azure-api.net` for Public Cloud
+    For gov cloud it may be different
+  EOT
+  type        = string
+  default     = "azure-api.net"
+}
+
+variable "default_ttl" {
+  description = "The default TTL for the DNS Zone"
+  type        = number
+  default     = 300
+}
+
+variable "additional_vnet_links" {
+  description = "A list of VNET IDs for which vnet links to be created with the private AKS cluster DNS Zone. Applicable only when private_cluster_enabled is true."
+  type        = map(string)
+  default     = {}
 }
 
 variable "tags" {
