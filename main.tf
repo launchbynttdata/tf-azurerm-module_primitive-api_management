@@ -53,7 +53,7 @@ resource "azurerm_api_management" "apim" {
 
   identity {
     type         = var.identity_type
-    identity_ids = replace(var.identity_type, "UserAssigned", "") == var.identity_type ? [] : var.identity_ids
+    identity_ids = replace(var.identity_type, "UserAssigned", "") == var.identity_type ? toset([]) : var.identity_ids
   }
 
   dynamic "hostname_configuration" {
