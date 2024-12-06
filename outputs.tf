@@ -62,5 +62,5 @@ output "api_management_scm_url" {
 
 output "api_management_identity" {
   description = "The identity of the API Management"
-  value       = toset(azurerm_api_management.apim.identity)
+  value       = azurerm_api_management.apim.identity
 }
