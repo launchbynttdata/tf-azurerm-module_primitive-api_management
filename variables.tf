@@ -198,8 +198,8 @@ variable "identity_type" {
 
 variable "identity_ids" {
   description = "A list of IDs for User Assigned Managed Identity resources to be assigned. This is required when type is set to UserAssigned or SystemAssigned, UserAssigned."
-  type        = list(string)
-  default     = []
+  type        = set(string)
+  default     = toset([])
 }
 
 variable "tags" {
