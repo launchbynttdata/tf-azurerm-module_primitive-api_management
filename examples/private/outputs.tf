@@ -70,5 +70,5 @@ output "public_ip_address" {
 }
 
 output "resource_group_name" {
-  value = var.resource_group_name != null ? var.resource_group_name : module.resource_group[0].name
+  value = var.resource_group_name != null ? var.resource_group_name : module.resource_group.name
 }

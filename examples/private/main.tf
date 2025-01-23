@@ -30,10 +30,10 @@ module "resource_group" {
   source  = "terraform.registry.launch.nttdata.com/module_primitive/resource_group/azurerm"
   version = "~> 1.0"
 
-  name     = module.resource_names["rg"].standard
+  name     = module.resource_names["resource_group"].standard
   location = var.region
 
-  tags = merge(var.tags, { resource_name = module.resource_names["rg"].standard })
+  tags = merge(var.tags, { resource_name = module.resource_names["resource_group"].standard })
 
 }
 
@@ -304,7 +304,7 @@ module "apim" {
 
 
   terms_of_service_configuration = var.terms_of_service_configuration
-  virtual_network_configuration  = module.vnet.vnet_subnets[0]
+  virtual_network_configuration  = module.vnet.vnet_subnets
 
   virtual_network_type = var.virtual_network_type
 
