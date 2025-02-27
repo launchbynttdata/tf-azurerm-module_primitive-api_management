@@ -155,7 +155,11 @@ module "dns_records" {
     }
   }
 
-  depends_on = [module.apim_default_dns_zone, module.resource_group, module.apim]
+  depends_on = [
+    module.apim_default_dns_zone,
+    module.resource_group,
+    time_sleep.apim_prop_delay
+  ]
 }
 
 module "nsg" {
@@ -311,4 +315,13 @@ module "apim" {
   tags = local.tags
 
   depends_on = [module.resource_group, module.public_ip]
+}
+
+### Any dependencies for the APIM should depend on this resource instead of the APIM resource directly.
+resource "time_sleep" "apim_prop_delay" {
+  create_duration = "10m"
+  triggers = {
+    apim_id   = module.apim.api_management_id
+    apim_name = module.apim.api_management_name
+  }
 }
