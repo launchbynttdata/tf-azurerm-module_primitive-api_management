@@ -282,7 +282,7 @@ module "apim" {
   min_api_version            = var.min_api_version
 
   identity_type = var.identity_type
-  identity_ids  = var.identity_ids
+  identity_ids  = var.identity_ids == null ? null : var.identity_ids
 
   management_hostname_configuration       = var.management_hostname_configuration
   portal_hostname_configuration           = var.portal_hostname_configuration

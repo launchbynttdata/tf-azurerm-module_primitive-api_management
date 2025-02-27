@@ -276,7 +276,7 @@ variable "identity_type" {
 variable "identity_ids" {
   description = "A list of IDs for User Assigned Managed Identity resources to be assigned. This is required when type is set to UserAssigned or SystemAssigned, UserAssigned."
   type        = list(string)
-  default     = []
+  default     = null
 }
 
 variable "dns_zone_suffix" {
