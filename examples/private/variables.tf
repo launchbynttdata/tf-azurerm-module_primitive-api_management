@@ -87,6 +87,30 @@ variable "resource_names_map" {
 }
 
 # VNet related variables
+
+variable "subnets" {
+  description = "A mapping of subnet names to their configurations."
+  type = map(object({
+    prefix = string
+    delegation = optional(map(object({
+      service_name    = string
+      service_actions = list(string)
+    })), {})
+    service_endpoints                             = optional(list(string), []),
+    private_endpoint_network_policies_enabled     = optional(bool, false)
+    private_link_service_network_policies_enabled = optional(bool, false)
+    network_security_group_id                     = optional(string, null)
+    route_table_id                                = optional(string, null)
+    route_table_name                              = optional(string, null)
+  }))
+  default = {
+    default = {
+      prefix = "10.51.50.0/24"
+    }
+  }
+
+}
+
 variable "address_space" {
   description = "Address space of the Vnet"
   type        = list(string)

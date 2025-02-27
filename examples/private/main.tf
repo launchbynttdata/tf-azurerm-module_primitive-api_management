@@ -12,7 +12,7 @@
 
 module "resource_names" {
   source  = "terraform.registry.launch.nttdata.com/module_library/resource_name/launch"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   for_each = var.resource_names_map
 
@@ -39,26 +39,17 @@ module "resource_group" {
 
 module "vnet" {
   source  = "terraform.registry.launch.nttdata.com/module_primitive/virtual_network/azurerm"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
-  resource_group_name                                  = module.resource_group.name
-  vnet_name                                            = module.resource_names["vnet"].standard
-  vnet_location                                        = var.region
-  address_space                                        = var.address_space
-  subnet_names                                         = var.subnet_names
-  subnet_prefixes                                      = var.subnet_prefixes
-  bgp_community                                        = null
-  ddos_protection_plan                                 = null
-  dns_servers                                          = []
-  nsg_ids                                              = {}
-  route_tables_ids                                     = {}
-  subnet_delegation                                    = {}
-  subnet_private_endpoint_network_policies_enabled     = {}
-  subnet_private_link_service_network_policies_enabled = {}
-  subnet_service_endpoints                             = {}
-  tags                                                 = merge(var.tags, { resource_name = module.resource_names["vnet"].standard })
-  use_for_each                                         = true
-
+  resource_group_name  = module.resource_group.name
+  vnet_name            = module.resource_names["vnet"].standard
+  vnet_location        = var.region
+  address_space        = var.address_space
+  subnets              = var.subnets
+  bgp_community        = null
+  ddos_protection_plan = null
+  dns_servers          = []
+  tags                 = merge(var.tags, { resource_name = module.resource_names["vnet"].standard })
 
   depends_on = [module.resource_group]
 }
@@ -255,7 +246,7 @@ module "nsg" {
 module "nsg_subnet_assoc" {
   source                    = "terraform.registry.launch.nttdata.com/module_primitive/nsg_subnet_association/azurerm"
   version                   = "~> 1.0"
-  subnet_id                 = module.vnet.vnet_subnets[0]
+  subnet_id                 = module.vnet.subnet_map["default"].id
   network_security_group_id = module.nsg.network_security_group_id
 
   depends_on = [module.nsg]
@@ -308,7 +299,7 @@ module "apim" {
 
 
   terms_of_service_configuration = var.terms_of_service_configuration
-  virtual_network_configuration  = module.vnet.vnet_subnets
+  virtual_network_configuration  = [module.vnet.subnet_map["default"].id]
 
   virtual_network_type = var.virtual_network_type
 
