@@ -195,4 +195,10 @@ resource "azurerm_api_management" "apim" {
   }
 
   tags = local.tags
+
+  timeouts {
+    create = "1h30m"
+    update = "1h30m"
+    delete = "30m"
+  }
 }
