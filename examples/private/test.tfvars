@@ -1,7 +1,7 @@
 # For certification_configuration, the `ca.cer` must be present in the same directory as the main.tf file
 
 product_family       = "dso"
-product_service      = "apim411"
+product_service      = "apim412"
 region               = "eastus"
 sku_name             = "Developer_1"
 publisher_name       = "Launch DSO"
@@ -12,3 +12,5 @@ virtual_network_type = "Internal"
 public_network_access_enabled = true
 
 additional_vnet_links = {}
+
+identity_type = "UserAssigned"

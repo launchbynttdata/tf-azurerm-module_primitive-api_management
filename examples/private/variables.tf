@@ -83,6 +83,10 @@ variable "resource_names_map" {
       name       = "rt"
       max_length = 60
     }
+    msi = {
+      name       = "msi"
+      max_length = 60
+    }
   }
 }
 
@@ -300,7 +304,7 @@ variable "identity_type" {
 variable "identity_ids" {
   description = "A list of IDs for User Assigned Managed Identity resources to be assigned. This is required when type is set to UserAssigned or SystemAssigned, UserAssigned."
   type        = list(string)
-  default     = null
+  default     = []
 }
 
 variable "dns_zone_suffix" {
