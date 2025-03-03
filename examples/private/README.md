@@ -10,14 +10,12 @@ Only other SKU that supports completely private APIM is `Premium`.
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.5 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~>3.67 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.6 |
-| <a name="requirement_time"></a> [time](#requirement\_time) | ~> 0.12 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 3.117.0 |
-| <a name="provider_time"></a> [time](#provider\_time) | 0.12.1 |
 
 ## Modules
 
@@ -39,7 +37,6 @@ Only other SKU that supports completely private APIM is `Premium`.
 | Name | Type |
 |------|------|
 | [azurerm_private_dns_zone.apim_default_dns_zone](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone) | resource |
-| [time_sleep.apim_prop_delay](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) | resource |
 
 ## Inputs
 
