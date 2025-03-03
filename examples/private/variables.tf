@@ -121,18 +121,6 @@ variable "address_space" {
   default     = ["10.51.0.0/16"]
 }
 
-variable "subnet_names" {
-  description = "Name of the subnets to be created"
-  type        = list(string)
-  default     = ["subnet-apim"]
-}
-
-variable "subnet_prefixes" {
-  description = "The CIDR blocks of the subnets whose names are specified in `subnet_names`"
-  type        = list(string)
-  default     = ["10.51.0.0/24"]
-}
-
 variable "resource_group_name" {
   description = "Name of the resource group"
   type        = string

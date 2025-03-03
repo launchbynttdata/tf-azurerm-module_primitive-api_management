@@ -76,21 +76,16 @@ module "public_ip" {
 # module "apim_default_dns_zone" {
 #   source  = "terraform.registry.launch.nttdata.com/module_primitive/private_dns_zone/azurerm"
 #   version = "~> 1.0"
-
 #   count = var.virtual_network_type != "None" ? 1 : 0
-
 #   zone_name           = var.dns_zone_suffix
 #   resource_group_name = module.resource_group.name
-
 #   tags = local.tags
-
 #   depends_on = [module.resource_group]
-
 # }
 
-### Must have the "bare" resource here to allow for the ignore_changes lifecycle block
-###   this is to allow for the DNS zone to be created and then the records to be created
-###   without the number_of_record_sets changing and causing idempotency issues
+### Must have the "bare" resource here to allow for the ignore_changes lifecycle block.
+###   This is to allow for the DNS zone to be created and then the records to be created
+###   without the number_of_record_sets changing and causing idempotency issues.
 resource "azurerm_private_dns_zone" "apim_default_dns_zone" {
   count = var.virtual_network_type != "None" ? 1 : 0
 
@@ -278,6 +273,7 @@ module "managed_identity" {
   tags = merge(local.tags, {
     resource_name = module.resource_names["msi"].standard
   })
+  depends_on = [module.resource_group]
 }
 
 module "apim" {
