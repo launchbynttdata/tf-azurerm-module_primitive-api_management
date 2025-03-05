@@ -10,6 +10,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+resource "random_integer" "suffix" {
+  min = 100
+  max = 999
+  keepers = {
+    region = var.product_service
+  }
+}
+
 module "resource_names" {
   source  = "terraform.registry.launch.nttdata.com/module_library/resource_name/launch"
   version = "~> 2.0"
@@ -17,7 +25,7 @@ module "resource_names" {
   for_each = var.resource_names_map
 
   logical_product_family  = var.product_family
-  logical_product_service = var.product_service
+  logical_product_service = join("", [var.product_service, random_integer.suffix.result])
   region                  = var.region
   class_env               = var.environment
   cloud_resource_type     = each.value.name
@@ -72,16 +80,6 @@ module "public_ip" {
 
   depends_on = [module.resource_group]
 }
-
-# module "apim_default_dns_zone" {
-#   source  = "terraform.registry.launch.nttdata.com/module_primitive/private_dns_zone/azurerm"
-#   version = "~> 1.0"
-#   count = var.virtual_network_type != "None" ? 1 : 0
-#   zone_name           = var.dns_zone_suffix
-#   resource_group_name = module.resource_group.name
-#   tags = local.tags
-#   depends_on = [module.resource_group]
-# }
 
 ### Must have the "bare" resource here to allow for the ignore_changes lifecycle block.
 ###   This is to allow for the DNS zone to be created and then the records to be created

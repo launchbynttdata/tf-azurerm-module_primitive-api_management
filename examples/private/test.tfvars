@@ -1,7 +1,7 @@
 # For certification_configuration, the `ca.cer` must be present in the same directory as the main.tf file
 
 product_family       = "dso"
-product_service      = "apim412"
+product_service      = "apim"
 region               = "eastus"
 sku_name             = "Developer_1"
 publisher_name       = "Launch DSO"
