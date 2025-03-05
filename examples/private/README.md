@@ -15,7 +15,6 @@ Only other SKU that supports completely private APIM is `Premium`.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_random"></a> [random](#provider\_random) | 3.7.1 |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 3.117.0 |
 
 ## Modules
@@ -38,7 +37,6 @@ Only other SKU that supports completely private APIM is `Premium`.
 | Name | Type |
 |------|------|
 | [azurerm_private_dns_zone.apim_default_dns_zone](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone) | resource |
-| [random_integer.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) | resource |
 
 ## Inputs
 
