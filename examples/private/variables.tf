@@ -83,26 +83,42 @@ variable "resource_names_map" {
       name       = "rt"
       max_length = 60
     }
+    msi = {
+      name       = "msi"
+      max_length = 60
+    }
   }
 }
 
 # VNet related variables
+
+variable "subnets" {
+  description = "A mapping of subnet names to their configurations."
+  type = map(object({
+    prefix = string
+    delegation = optional(map(object({
+      service_name    = string
+      service_actions = list(string)
+    })), {})
+    service_endpoints                             = optional(list(string), []),
+    private_endpoint_network_policies_enabled     = optional(bool, false)
+    private_link_service_network_policies_enabled = optional(bool, false)
+    network_security_group_id                     = optional(string, null)
+    route_table_id                                = optional(string, null)
+    route_table_name                              = optional(string, null)
+  }))
+  default = {
+    default = {
+      prefix = "10.51.50.0/24"
+    }
+  }
+
+}
+
 variable "address_space" {
   description = "Address space of the Vnet"
   type        = list(string)
   default     = ["10.51.0.0/16"]
-}
-
-variable "subnet_names" {
-  description = "Name of the subnets to be created"
-  type        = list(string)
-  default     = ["subnet-apim"]
-}
-
-variable "subnet_prefixes" {
-  description = "The CIDR blocks of the subnets whose names are specified in `subnet_names`"
-  type        = list(string)
-  default     = ["10.51.0.0/24"]
 }
 
 variable "resource_group_name" {

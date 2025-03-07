@@ -12,7 +12,7 @@
 
 module "resource_names" {
   source  = "terraform.registry.launch.nttdata.com/module_library/resource_name/launch"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   for_each = var.resource_names_map
 
@@ -30,35 +30,26 @@ module "resource_group" {
   source  = "terraform.registry.launch.nttdata.com/module_primitive/resource_group/azurerm"
   version = "~> 1.0"
 
-  name     = module.resource_names["rg"].standard
+  name     = module.resource_names["resource_group"].minimal_random_suffix
   location = var.region
 
-  tags = merge(var.tags, { resource_name = module.resource_names["rg"].standard })
+  tags = merge(var.tags, { resource_name = module.resource_names["resource_group"].standard })
 
 }
 
 module "vnet" {
   source  = "terraform.registry.launch.nttdata.com/module_primitive/virtual_network/azurerm"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
-  resource_group_name                                  = module.resource_group.name
-  vnet_name                                            = module.resource_names["vnet"].standard
-  vnet_location                                        = var.region
-  address_space                                        = var.address_space
-  subnet_names                                         = var.subnet_names
-  subnet_prefixes                                      = var.subnet_prefixes
-  bgp_community                                        = null
-  ddos_protection_plan                                 = null
-  dns_servers                                          = []
-  nsg_ids                                              = {}
-  route_tables_ids                                     = {}
-  subnet_delegation                                    = {}
-  subnet_private_endpoint_network_policies_enabled     = {}
-  subnet_private_link_service_network_policies_enabled = {}
-  subnet_service_endpoints                             = {}
-  tags                                                 = merge(var.tags, { resource_name = module.resource_names["vnet"].standard })
-  use_for_each                                         = true
-
+  resource_group_name  = module.resource_group.name
+  vnet_name            = module.resource_names["vnet"].standard
+  vnet_location        = var.region
+  address_space        = var.address_space
+  subnets              = var.subnets
+  bgp_community        = null
+  ddos_protection_plan = null
+  dns_servers          = []
+  tags                 = merge(var.tags, { resource_name = module.resource_names["vnet"].standard })
 
   depends_on = [module.resource_group]
 }
@@ -82,18 +73,19 @@ module "public_ip" {
   depends_on = [module.resource_group]
 }
 
-module "apim_default_dns_zone" {
-  source  = "terraform.registry.launch.nttdata.com/module_primitive/private_dns_zone/azurerm"
-  version = "~> 1.0"
-
+### Must have the "bare" resource here to allow for the ignore_changes lifecycle block.
+###   This is to allow for the DNS zone to be created and then the records to be created
+###   without the number_of_record_sets changing and causing idempotency issues.
+resource "azurerm_private_dns_zone" "apim_default_dns_zone" {
   count = var.virtual_network_type != "None" ? 1 : 0
 
-  zone_name           = var.dns_zone_suffix
+  name                = var.dns_zone_suffix
   resource_group_name = module.resource_group.name
-
-  tags = local.tags
-
-  depends_on = [module.resource_group]
+  tags                = local.tags
+  depends_on          = [module.resource_group]
+  lifecycle {
+    ignore_changes = [number_of_record_sets]
+  }
 }
 
 module "vnet_links" {
@@ -104,13 +96,13 @@ module "vnet_links" {
 
   link_name             = each.key
   resource_group_name   = module.resource_group.name
-  private_dns_zone_name = module.apim_default_dns_zone[0].zone_name
+  private_dns_zone_name = azurerm_private_dns_zone.apim_default_dns_zone[0].name
   virtual_network_id    = each.value
   registration_enabled  = false
 
   tags = local.tags
 
-  depends_on = [module.apim_default_dns_zone, module.resource_group]
+  depends_on = [azurerm_private_dns_zone.apim_default_dns_zone, module.resource_group]
 }
 
 module "dns_records" {
@@ -119,35 +111,35 @@ module "dns_records" {
 
   a_records = {
     "apim" = {
-      zone_name           = module.apim_default_dns_zone[0].zone_name
+      zone_name           = azurerm_private_dns_zone.apim_default_dns_zone[0].name
       resource_group_name = module.resource_group.name
       ttl                 = var.default_ttl
       name                = module.resource_names["apim"].standard
       records             = module.apim.api_management_private_ip_addresses
     }
     "portal" = {
-      zone_name           = module.apim_default_dns_zone[0].zone_name
+      zone_name           = azurerm_private_dns_zone.apim_default_dns_zone[0].name
       resource_group_name = module.resource_group.name
       ttl                 = var.default_ttl
       name                = "${module.resource_names["apim"].standard}.portal"
       records             = module.apim.api_management_private_ip_addresses
     }
     "developer" = {
-      zone_name           = module.apim_default_dns_zone[0].zone_name
+      zone_name           = azurerm_private_dns_zone.apim_default_dns_zone[0].name
       resource_group_name = module.resource_group.name
       ttl                 = var.default_ttl
       name                = "${module.resource_names["apim"].standard}.developer"
       records             = module.apim.api_management_private_ip_addresses
     }
     "management" = {
-      zone_name           = module.apim_default_dns_zone[0].zone_name
+      zone_name           = azurerm_private_dns_zone.apim_default_dns_zone[0].name
       resource_group_name = module.resource_group.name
       ttl                 = var.default_ttl
       name                = "${module.resource_names["apim"].standard}.management"
       records             = module.apim.api_management_private_ip_addresses
     }
     "scm" = {
-      zone_name           = module.apim_default_dns_zone[0].zone_name
+      zone_name           = azurerm_private_dns_zone.apim_default_dns_zone[0].name
       resource_group_name = module.resource_group.name
       ttl                 = var.default_ttl
       name                = "${module.resource_names["apim"].standard}.scm"
@@ -155,7 +147,10 @@ module "dns_records" {
     }
   }
 
-  depends_on = [module.apim_default_dns_zone, module.resource_group, module.apim]
+  depends_on = [
+    azurerm_private_dns_zone.apim_default_dns_zone,
+    module.resource_group
+  ]
 }
 
 module "nsg" {
@@ -251,17 +246,29 @@ module "nsg" {
 module "nsg_subnet_assoc" {
   source                    = "terraform.registry.launch.nttdata.com/module_primitive/nsg_subnet_association/azurerm"
   version                   = "~> 1.0"
-  subnet_id                 = module.vnet.vnet_subnets[0]
+  subnet_id                 = module.vnet.subnet_map["default"].id
   network_security_group_id = module.nsg.network_security_group_id
 
   depends_on = [module.nsg]
 }
 
+module "managed_identity" {
+  source                      = "terraform.registry.launch.nttdata.com/module_primitive/user_managed_identity/azurerm"
+  version                     = "~> 1.0"
+  count                       = var.identity_type == "SystemAssigned" ? 0 : 1
+  resource_group_name         = module.resource_group.name
+  location                    = var.region
+  user_assigned_identity_name = module.resource_names["msi"].standard
+  tags = merge(local.tags, {
+    resource_name = module.resource_names["msi"].standard
+  })
+  depends_on = [module.resource_group]
+}
 
 module "apim" {
   source = "../.."
 
-  name                = module.resource_names["apim"].standard
+  name                = module.resource_names["apim"].dns_compliant_minimal_random_suffix
   location            = var.region
   resource_group_name = module.resource_group.name
 
@@ -282,7 +289,7 @@ module "apim" {
   min_api_version            = var.min_api_version
 
   identity_type = var.identity_type
-  identity_ids  = var.identity_ids
+  identity_ids  = var.identity_ids == null ? [] : concat(var.identity_ids, [module.managed_identity[0].id])
 
   management_hostname_configuration       = var.management_hostname_configuration
   portal_hostname_configuration           = var.portal_hostname_configuration
@@ -304,7 +311,7 @@ module "apim" {
 
 
   terms_of_service_configuration = var.terms_of_service_configuration
-  virtual_network_configuration  = module.vnet.vnet_subnets[0]
+  virtual_network_configuration  = [module.vnet.subnet_map["default"].id]
 
   virtual_network_type = var.virtual_network_type
 
