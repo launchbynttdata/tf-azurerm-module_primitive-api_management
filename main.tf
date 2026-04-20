@@ -41,9 +41,9 @@ resource "azurerm_api_management" "apim" {
   dynamic "certificate" {
     for_each = var.certificate_configuration
     content {
-      encoded_certificate  = filebase64("${path.root}/${lookup(certificate.value, "encoded_certificate")}")
-      certificate_password = lookup(certificate.value, "certificate_password")
-      store_name           = lookup(certificate.value, "store_name")
+      encoded_certificate  = filebase64("${path.root}/${certificate.value["encoded_certificate"]}")
+      certificate_password = certificate.value["certificate_password"]
+      store_name           = certificate.value["store_name"]
     }
   }
 
@@ -68,7 +68,7 @@ resource "azurerm_api_management" "apim" {
       dynamic "management" {
         for_each = var.management_hostname_configuration
         content {
-          host_name                    = lookup(management.value, "host_name")
+          host_name                    = management.value["host_name"]
           key_vault_id                 = lookup(management.value, "key_vault_id", null)
           certificate                  = lookup(management.value, "certificate", null)
           certificate_password         = lookup(management.value, "certificate_password", null)
@@ -79,7 +79,7 @@ resource "azurerm_api_management" "apim" {
       dynamic "portal" {
         for_each = var.portal_hostname_configuration
         content {
-          host_name                    = lookup(portal.value, "host_name")
+          host_name                    = portal.value["host_name"]
           key_vault_id                 = lookup(portal.value, "key_vault_id", null)
           certificate                  = lookup(portal.value, "certificate", null)
           certificate_password         = lookup(portal.value, "certificate_password", null)
@@ -90,7 +90,7 @@ resource "azurerm_api_management" "apim" {
       dynamic "developer_portal" {
         for_each = var.developer_portal_hostname_configuration
         content {
-          host_name                    = lookup(developer_portal.value, "host_name")
+          host_name                    = developer_portal.value["host_name"]
           key_vault_id                 = lookup(developer_portal.value, "key_vault_id", null)
           certificate                  = lookup(developer_portal.value, "certificate", null)
           certificate_password         = lookup(developer_portal.value, "certificate_password", null)
@@ -101,7 +101,7 @@ resource "azurerm_api_management" "apim" {
       dynamic "proxy" {
         for_each = var.proxy_hostname_configuration
         content {
-          host_name                    = lookup(proxy.value, "host_name")
+          host_name                    = proxy.value["host_name"]
           default_ssl_binding          = lookup(proxy.value, "default_ssl_binding", false)
           key_vault_id                 = lookup(proxy.value, "key_vault_id", null)
           certificate                  = lookup(proxy.value, "certificate", null)
@@ -113,7 +113,7 @@ resource "azurerm_api_management" "apim" {
       dynamic "scm" {
         for_each = var.scm_hostname_configuration
         content {
-          host_name                    = lookup(scm.value, "host_name")
+          host_name                    = scm.value["host_name"]
           key_vault_id                 = lookup(scm.value, "key_vault_id", null)
           certificate                  = lookup(scm.value, "certificate", null)
           certificate_password         = lookup(scm.value, "certificate_password", null)
@@ -177,9 +177,9 @@ resource "azurerm_api_management" "apim" {
       dynamic "terms_of_service" {
         for_each = var.terms_of_service_configuration
         content {
-          consent_required = lookup(terms_of_service.value, "consent_required")
-          enabled          = lookup(terms_of_service.value, "enabled")
-          text             = lookup(terms_of_service.value, "text")
+          consent_required = terms_of_service.value["consent_required"]
+          enabled          = terms_of_service.value["enabled"]
+          text             = terms_of_service.value["text"]
         }
       }
     }
