@@ -16,7 +16,7 @@ variable "product_family" {
     Example: org_name, department_name.
   EOF
   type        = string
-  default     = "dso"
+  default     = "launch"
 }
 
 variable "product_service" {
@@ -25,7 +25,7 @@ variable "product_service" {
     For example, backend, frontend, middleware etc.
   EOF
   type        = string
-  default     = "kube"
+  default     = "apim"
 }
 
 variable "environment" {
@@ -41,7 +41,7 @@ variable "environment_number" {
 }
 
 variable "region" {
-  description = "AWS Region in which the infra needs to be provisioned"
+  description = "Azure Region in which the infra needs to be provisioned"
   type        = string
   default     = "eastus"
 }
